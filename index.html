@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hayal Pastanesi - Dijital QR Menü</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bakery: {
+                            50: '#FDFBF7',
+                            100: '#F7F0E6',
+                            200: '#EBDBC8',
+                            300: '#DFC4A5',
+                            400: '#CFA479',
+                            500: '#B88251',
+                            600: '#9E6436',
+                            700: '#7E4C27',
+                            800: '#5F371B',
+                            900: '#3D210F',
+                        },
+                        cream: '#FFFDF9',
+                        warmAccent: '#E07A5F',
+                        goldAccent: '#D4AF37'
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FDFBF7;
+            color: #3D210F;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-header {
+            background: rgba(253, 251, 247, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .badge-gradient {
+            background: linear-gradient(135deg, #B88251 0%, #7E4C27 100%);
+        }
+    </style>
+</head>
+<body class="pb-24 min-h-screen">
+
+    <!-- TOP BAR / BANNER -->
+    <div class="bg-bakery-800 text-amber-100 text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
+        <i class="fa-solid fa-cake-candles text-goldAccent"></i>
+        <span>Günlük taze pasta siparişlerinizi <strong>1 gün önceden</strong> veriniz.</span>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="sticky top-0 z-40 glass-header border-b border-bakery-200/60 shadow-sm transition-all duration-300">
+        <div class="max-w-3xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-bakery-700 text-cream flex items-center justify-center text-xl shadow-md border-2 border-goldAccent">
+                        <i class="fa-solid fa-wheat-awn"></i>
+                    </div>
+                    <div>
+                    <h1 class="font-serif font-bold text-xl tracking-tight text-bakery-900 leading-tight">
+                        Hayal Pastanesi
+                    </h1>
+                    <p class="text-xs text-bakery-600 font-serif italic">"Bir kahve, bir mola..."</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <a href="tel:05336310755" class="w-10 h-10 rounded-full bg-bakery-100 text-bakery-800 flex items-center justify-center text-base border border-bakery-300 hover:bg-bakery-700 hover:text-cream hover:border-bakery-700 active:scale-95 transition-all shadow-sm" title="Arama Yap (0533 631 07 55)">
+                    <i class="fa-solid fa-phone"></i>
+                </a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Ataevler,+Kul+Sk.+NO:64+İŞYERİ+2,+41180+Kartepe/Kocaeli" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-bakery-100 text-bakery-800 flex items-center justify-center text-base border border-bakery-300 hover:bg-bakery-700 hover:text-cream hover:border-bakery-700 active:scale-95 transition-all shadow-sm" title="Haritada Konumu Aç">
+                    <i class="fa-solid fa-location-dot"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- SEARCH BAR -->
+            <div class="mt-3 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-bakery-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Menüde lezzet ara... (ör. Börek, Latte, Baklava)" 
+                    class="w-full pl-10 pr-9 py-2.5 bg-white border border-bakery-200 rounded-xl text-sm focus:outline-none focus:border-bakery-500 focus:ring-2 focus:ring-bakery-200 transition-all placeholder:text-bakery-400">
+                <button id="clearSearch" onclick="clearSearchInput()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-bakery-400 hover:text-bakery-700">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- CATEGORY NAVIGATION TABS -->
+        <div class="border-t border-bakery-200/40 bg-cream">
+            <div class="max-w-3xl mx-auto px-4">
+                <nav id="categoryTabs" class="flex overflow-x-auto hide-scrollbar gap-2 py-2.5 text-xs font-semibold whitespace-nowrap scroll-smooth">
+                    <!-- Dynamic categories injected by JS -->
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="max-w-3xl mx-auto px-4 pt-4">
+        
+        <!-- SEARCH RESULTS HEADER (Hidden by default) -->
+        <div id="searchResultsTitle" class="hidden mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-sm">
+            <span class="text-bakery-800">Arama sonuçları gösteriliyor...</span>
+            <button onclick="clearSearchInput()" class="text-xs text-warmAccent font-bold hover:underline">Aramayı Temizle</button>
+        </div>
+
+        <!-- MENU SECTIONS CONTAINER -->
+        <div id="menuContainer" class="space-y-8">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- EMPTY SEARCH STATE -->
+        <div id="emptyState" class="hidden py-16 text-center">
+            <div class="w-16 h-16 mx-auto mb-3 text-bakery-300 text-4xl flex items-center justify-center">
+                <i class="fa-solid fa-cookie-bite"></i>
+            </div>
+            <p class="text-bakery-800 font-medium">Aradığınız lezzet bulunamadı.</p>
+            <p class="text-xs text-bakery-500 mt-1">Lütfen farklı bir arama kelimesi deneyin.</p>
+        </div>
+    </main>
+
+    <!-- FOOTER INFO & CONTACT -->
+    <footer class="max-w-3xl mx-auto px-4 mt-12 text-center border-t border-bakery-200 pt-8 pb-16">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-bakery-100 text-bakery-700 text-xl mb-3">
+            <i class="fa-solid fa-store"></i>
+        </div>
+        <h3 class="font-serif text-lg font-bold text-bakery-900">Hayal Pastanesi</h3>
+        <p class="text-xs text-bakery-600 italic mb-4">"Bir lezzet, bir mola."</p>
+
+        <div class="bg-white rounded-2xl p-4 border border-bakery-200 shadow-sm text-left text-xs space-y-3 mb-6 max-w-md mx-auto">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-location-dot text-bakery-600 mt-0.5"></i>
+                <div>
+                    <span class="font-semibold block text-bakery-900">Adres:</span>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Ataevler,+Kul+Sk.+NO:64+İŞYERİ+2,+41180+Kartepe/Kocaeli" target="_blank" rel="noopener noreferrer" class="text-bakery-700 hover:text-bakery-900 underline">Ataevler, Kul Sk. NO:64 İŞYERİ 2, 41180 Kartepe / Kocaeli</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-phone text-bakery-600"></i>
+                <div>
+                    <span class="font-semibold block text-bakery-900">Sipariş & Bilgi:</span>
+                    <a href="tel:05336310755" class="text-bakery-700 hover:text-bakery-900 underline font-medium">0533 631 07 55</a>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-clock text-bakery-600 mt-0.5"></i>
+                <div>
+                    <span class="font-semibold block text-bakery-900">Özel Sipariş Notu:</span>
+                    <span class="text-bakery-700">Özel tasarım ve yaş pastalarınız için lütfen <strong>en az 24 saat önceden</strong> sipariş veriniz.</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-[11px] text-bakery-400">© Hayal Pastanesi. Tüm hakları saklıdır.</p>
+    </footer>
+
+    <!-- JAVASCRIPT DATA & LOGIC -->
+    <script>
+        const menuData = [
+            {
+                id: "sicak-icecekler",
+                title: "Sıcak İçecekler",
+                icon: "fa-mug-hot",
+                items: [
+                    { name: "Çay (Bardak)", price: "25 ₺", desc: "Taze demlenmiş klasik bardak çay" },
+                    { name: "Çay (Fincan)", price: "50 ₺", desc: "Büyük fincanda taze demlenmiş çay" },
+                    { name: "Oralet", price: "30 ₺", desc: "Meyve aromalı sıcak içecek" },
+                    { name: "Kakao", price: "30 ₺", desc: "Sıcak ve lezzetli kakao" },
+                    { name: "Kuşburnu", price: "30 ₺", desc: "Sıcak meyve çayı" },
+                    { name: "Kivi", price: "30 ₺", desc: "Sıcak kivi aromalı içecek" },
+                    { name: "Nane-Limon", price: "30 ₺", desc: "Ferahlatıcı sıcak nane limon" }
+                ]
+            },
+            {
+                id: "kahve-cesitleri",
+                title: "Kahve Çeşitleri",
+                icon: "fa-mug-saucer",
+                items: [
+                    { name: "Türk Kahvesi (Küçük)", price: "100 ₺", desc: "Geleneksel Türk kahvesi" },
+                    { name: "Türk Kahvesi (Duble)", price: "180 ₺", desc: "Çift kişilik porsiyon Türk kahvesi" },
+                    { name: "Nescafe", price: "100 ₺", desc: "Hazır sıcak kahve" },
+                    { name: "Latte", price: "120 ₺", desc: "Espresso ve bol süt köpüğü" },
+                    { name: "Cappuccino", price: "120 ₺", desc: "Zengin kadifemsi süt köpüğü ile" },
+                    { name: "Sütlü Kahve", price: "120 ₺", desc: "Yumuşak içimli sütlü kahve" }
+                ]
+            },
+            {
+                id: "bitki-ve-kis-caylari",
+                title: "Bitki & Kış Çayları",
+                icon: "fa-leaf",
+                note: "French Press ile servis edilir",
+                items: [
+                    { name: "Ihlamur", price: "150 ₺", desc: "Doğal süzme ihlamur yaprakları" },
+                    { name: "Adaçayı", price: "150 ₺", desc: "Taze ve aromatik adaçayı" },
+                    { name: "Papatya Çayı", price: "150 ₺", desc: "Sakinleştirici papatya özleri" },
+                    { name: "Kış Çayı", price: "150 ₺", desc: "Zengin baharat ve meyve harmanı" },
+                    { name: "Detoks Çayı", price: "150 ₺", desc: "Yenileyici bitki karışımı" },
+                    { name: "Atom Çayı", price: "150 ₺", desc: "Enerji veren şifalı bitki harmanı" },
+                    { name: "Yeşil Çay", price: "150 ₺", desc: "Antioksidan deposu taze yeşil çay" }
+                ]
+            },
+            {
+                id: "soguk-icecekler",
+                title: "Soğuk İçecekler",
+                icon: "fa-glass-water",
+                items: [
+                    { name: "Su (Çenesuyu)", price: "20 ₺", desc: "Doğal kaynak suyu" },
+                    { name: "Ayran (Küçük)", price: "30 ₺", desc: "Serinletici geleneksel ayran" },
+                    { name: "Soğuk Kahve", price: "160 ₺", desc: "Buzlu nefis soğuk kahve" },
+                    { name: "Link (Çilek / Vişne)", price: "30 ₺", desc: "Çocukların favori meyveli içeceği" },
+                    { name: "Freşa Meyveli Soda", price: "35 ₺", desc: "Elma, Limon veya Karadut seçeneği ile" },
+                    { name: "Beypazarı (Sade)", price: "30 ₺", desc: "Doğal maden suyu" },
+                    { name: "Fanta / Coca-Cola / Pepsi", price: "70 ₺", desc: "Kutu asitli meşrubat çeşitleri" },
+                    { name: "Dimes Meyve Suyu", price: "20 ₺", desc: "Kayısı, Vişne, Portakal veya Şeftali" },
+                    { name: "Didi Soğuk Çay", price: "40 ₺", desc: "Çilek, Bergamot, Limon veya Şeftali" }
+                ]
+            },
+            {
+                id: "simit-acma-pogaca",
+                title: "Simit, Açma & Poğaça",
+                icon: "fa-bread-slice",
+                items: [
+                    { name: "Simit (Sade)", price: "25 ₺", desc: "Taze gevrekleşmiş çıtır simit" },
+                    { name: "Simit (Çekirdekli / Tahinli / Tereyağlı)", price: "40 ₺", desc: "Zengin içerikli özel simit çeşitleri" },
+                    { name: "Açma (Sade)", price: "25 ₺", desc: "Yumuşacık ev yapımı kıvamında açma" },
+                    { name: "Açma (Çikolatalı / Zeytinli)", price: "40 ₺", desc: "Nefis zeytin veya çikolata dolgulu" },
+                    { name: "Poğaça (Sade)", price: "20 ₺", desc: "Geleneksel sade poğaça" },
+                    { name: "Poğaça (Çeşitleri)", price: "25 ₺", desc: "Peynirli, Kıymalı, Patatesli, Kaşarlı, Zeytinli, Dereotlu veya Sucuklu" }
+                ]
+            },
+            {
+                id: "atistirmaliklar",
+                title: "Atıştırmalıklar",
+                icon: "fa-cookie",
+                items: [
+                    { name: "Mini Pizza (Karışık)", price: "30 ₺", desc: "Tek kişilik atıştırmalık pizza" },
+                    { name: "Kapalı Pizza (Karışık)", price: "50 ₺", desc: "Doyurucu kapalı lezzet pizzası" },
+                    { name: "Orta Pizza (Karışık)", price: "100 ₺", desc: "Bol malzemeli orta boy pizza" },
+                    { name: "Mini Sandviç (Karışık)", price: "30 ₺", desc: "Pratik taze sandviç" },
+                    { name: "Sandviç (Karışık)", price: "80 ₺", desc: "Doyurucu malzemeli taze sandviç" },
+                    { name: "Anne Kurabiyesi", price: "50 ₺", desc: "Ev yapımı lezzetinde anne kurabiyesi" },
+                    { name: "Kruvasan", price: "100 ₺", desc: "Tereyağlı çıtır fransız kruvasanı" },
+                    { name: "Sigara Böreği", price: "25 ₺", desc: "Çıtır peynirli sigara böreği" },
+                    { name: "Kek Çeşitleri", price: "Danışınız", desc: "Havuç-Limon, Ceviz, Portakal seçeneğiyle" },
+                    { name: "Maydanozlu Atıştırmalık", price: "700 ₺ / Kg", desc: "Kilo hesabıyla satılır" }
+                ]
+            },
+            {
+                id: "borek-cesitleri",
+                title: "Börek Çeşitleri",
+                icon: "fa-sheet-plastic",
+                items: [
+                    { name: "Kol Böreği (Patatesli)", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Geleneksel çıtır patatesli kol böreği" },
+                    { name: "Kol Böreği (Ispanaklı)", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Taze ıspanak dolgulu kol böreği" },
+                    { name: "Kol Böreği (Kıymalı)", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Özel kıymalı iç harç ile" },
+                    { name: "Kol Böreği (Peynirli)", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Nefis peynirli kol böreği" },
+                    { name: "Su Böreği (Peynir-Maydanoz)", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Geleneksel kat kat lezzet su böreği" },
+                    { name: "Küt Böreği", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Pudra şekeri ile servis edilir" }
+                ]
+            },
+            {
+                id: "kurabiyeler",
+                title: "Kurabiyeler",
+                icon: "fa-cookie-bite",
+                items: [
+                    { name: "Tuzlu Kurabiye Çeşitleri", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Tuzlu, Simit, Burgu, Pizza, Nane Ekşili, Mahlepli Top" },
+                    { name: "Tatlı Kurabiye Çeşitleri", price: "150 ₺ / Por", badge: "700 ₺ / Kg", desc: "Elmalı, Un, Gevrekli, Mantar, Fındık Çikolata, Tarçınlı, Erson, Red Velvet, Cookie, İzmir Bomba, Hanımeller, Limonlu, Pişmaniye" }
+                ]
+            },
+            {
+                id: "pastalar-ve-tatlilar",
+                title: "Pastalar & Tatlılar",
+                icon: "fa-cake-candles",
+                items: [
+                    { name: "Tek Kişilik Pasta", price: "250 ₺", desc: "Günlük taze yaş pasta dilimi" },
+                    { name: "0 No Pasta", price: "750 ₺", desc: "Yaklaşık 4-6 kişilik yaş pasta" },
+                    { name: "1 No Pasta", price: "850 ₺", desc: "Yaklaşık 6-8 kişilik yaş pasta" },
+                    { name: "2 No Pasta", price: "950 ₺", desc: "Yaklaşık 8-10 kişilik yaş pasta" },
+                    { name: "Rulo Pasta", price: "150 ₺", desc: "Yumuşak kremalı rulo pasta dilimi" },
+                    { name: "Baklava (Cevizli)", price: "800 ₺ / Kg", desc: "Geleneksel cevizli ev baklavası kıvamında" },
+                    { name: "Soğuk Baklava", price: "850 ₺ / Kg", desc: "Sütlü ve bol çikolatalı hafif soğuk baklava" },
+                    { name: "Tel Kadayıf", price: "750 ₺ / Kg", desc: "Çıtır kadayıf lezzeti" },
+                    { name: "Bükme - Burma Baklava", price: "800 ₺ / Kg", desc: "Özel şerbetli burma baklava" },
+                    { name: "Trileçe", price: "700 ₺ / Kg", desc: "Hafif sütlü karamelli/soslu tatlı" },
+                    { name: "Ekler / Profiterol", price: "700 ₺ / Kg", desc: "Çikolata soslu özel dolgulu tatlılar" },
+                    { name: "Ağlayan Pasta / Tiramisu / Kıbrıs Tatlısı", price: "700 ₺ / Kg", desc: "Günlük taze borcam ve dilim tatlılar" },
+                    { name: "Sneakers Pasta / Top Çikolata Pasta", price: "750 ₺ / Kg", desc: "Özel çikolatalı ve yer fıstıklı pastalar" },
+                    { name: "Petit Four Pasta", price: "700 ₺ / Kg", desc: "Mini aperatif minik pasta taneleri" },
+                    { name: "Sütlaç", price: "150 ₺", desc: "Fırınlanmış kıvamlı sütlaç" },
+                    { name: "Supangle", price: "200 ₺", desc: "Yoğun çikolatalı tatlı kup" },
+                    { name: "Magnolia", price: "200 ₺", desc: "Bisküvi ve taze meyve kremalı kup" }
+                ]
+            },
+            {
+                id: "kahvalti",
+                title: "Kahvaltı",
+                icon: "fa-utensils",
+                items: [
+                    { 
+                        name: "Zengin Kahvaltı Tabağı", 
+                        price: "400 ₺", 
+                        desc: "Kaşar, reçel, acuka, zeytin, yumurta, peynir, salam, çıtır börek veya simit (isteğe göre), 1 bardak çay dahil." 
+                    },
+                    { 
+                        name: "Simit Tabağı", 
+                        price: "150 ₺", 
+                        desc: "Zeytin, peynir, taze simit, çikolata, 1 bardak çay dahil." 
+                    },
+                    { 
+                        name: "Aç Bitir Kahvaltı Paket Ürün", 
+                        price: "30 ₺", 
+                        desc: "Pratik kahvaltılık paket ürün" 
+                    }
+                ]
+            }
+        ];
+
+        // RENDER TABS
+        function renderTabs() {
+            const tabsNav = document.getElementById('categoryTabs');
+            tabsNav.innerHTML = menuData.map((cat, index) => `
+                <button onclick="scrollToCategory('${cat.id}')" 
+                    id="tab-${cat.id}"
+                    class="px-3.5 py-1.5 rounded-full transition-all duration-200 border flex items-center gap-1.5 ${index === 0 ? 'bg-bakery-700 text-cream border-bakery-700 shadow-sm' : 'bg-white text-bakery-800 border-bakery-200 hover:bg-bakery-100'}">
+                    <i class="fa-solid ${cat.icon} text-[11px]"></i>
+                    <span>${cat.title}</span>
+                </button>
+            `).join('');
+        }
+
+        // RENDER MENU ITEMS
+        function renderMenu(filterText = '') {
+            const container = document.getElementById('menuContainer');
+            const emptyState = document.getElementById('emptyState');
+            const searchResultsTitle = document.getElementById('searchResultsTitle');
+            
+            let hasResults = false;
+            let html = '';
+
+            const isFiltering = filterText.trim().length > 0;
+            const query = filterText.toLowerCase().trim();
+
+            if (isFiltering) {
+                searchResultsTitle.classList.remove('hidden');
+            } else {
+                searchResultsTitle.classList.add('hidden');
+            }
+
+            menuData.forEach(section => {
+                // Filter items
+                const matchingItems = section.items.filter(item => 
+                    item.name.toLowerCase().includes(query) || 
+                    item.desc.toLowerCase().includes(query)
+                );
+
+                if (matchingItems.length > 0) {
+                    hasResults = true;
+                    html += `
+                        <section id="${section.id}" class="scroll-mt-36">
+                            <div class="flex items-center justify-between pb-2 mb-3 border-b-2 border-bakery-200">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-lg bg-bakery-100 text-bakery-700 flex items-center justify-center text-sm font-bold">
+                                        <i class="fa-solid ${section.icon}"></i>
+                                    </div>
+                                    <h2 class="font-serif font-bold text-lg text-bakery-900">${section.title}</h2>
+                                </div>
+                                ${section.note ? `<span class="text-[11px] font-medium bg-amber-100 text-bakery-800 px-2.5 py-0.5 rounded-full border border-amber-200">${section.note}</span>` : ''}
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${matchingItems.map(item => `
+                                    <div class="bg-white p-3.5 rounded-2xl border border-bakery-200/80 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between group">
+                                        <div>
+                                            <div class="flex items-start justify-between gap-2">
+                                                <h3 class="font-semibold text-sm text-bakery-900 group-hover:text-bakery-700 transition">${item.name}</h3>
+                                                <div class="flex flex-col items-end">
+                                                    <span class="font-bold text-sm text-bakery-800 bg-bakery-50 px-2.5 py-1 rounded-lg border border-bakery-200/60 whitespace-nowrap">${item.price}</span>
+                                                    ${item.badge ? `<span class="text-[10px] text-bakery-600 font-semibold mt-1 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">${item.badge}</span>` : ''}
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-bakery-600 mt-1.5 leading-relaxed">${item.desc}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </section>
+                    `;
+                }
+            });
+
+            if (!hasResults) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                container.innerHTML = html;
+            }
+        }
+
+        // SCROLL TO CATEGORY
+        function scrollToCategory(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+            updateActiveTab(id);
+        }
+
+        // UPDATE TAB STYLES
+        function updateActiveTab(activeId) {
+            menuData.forEach(cat => {
+                const tab = document.getElementById(`tab-${cat.id}`);
+                if (tab) {
+                    if (cat.id === activeId) {
+                        tab.className = "px-3.5 py-1.5 rounded-full transition-all duration-200 border flex items-center gap-1.5 bg-bakery-700 text-cream border-bakery-700 shadow-sm";
+                        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    } else {
+                        tab.className = "px-3.5 py-1.5 rounded-full transition-all duration-200 border flex items-center gap-1.5 bg-white text-bakery-800 border-bakery-200 hover:bg-bakery-100";
+                    }
+                }
+            });
+        }
+
+        // SEARCH FUNCTION
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearSearch');
+            
+            if (query.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            
+            renderMenu(query);
+        }
+
+        function clearSearchInput() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearSearch').classList.add('hidden');
+            renderMenu('');
+        }
+
+        // SCROLLSPY FOR TAB HIGHLIGHTING
+        window.addEventListener('scroll', () => {
+            if (document.getElementById('searchInput').value.trim() !== '') return;
+            
+            let current = '';
+            menuData.forEach(section => {
+                const el = document.getElementById(section.id);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= 160) {
+                        current = section.id;
+                    }
+                }
+            });
+            if (current) {
+                updateActiveTab(current);
+            }
+        });
+
+        // INIT
+        window.onload = () => {
+            renderTabs();
+            renderMenu();
+        };
+    </script>
+</body>
+</html>
